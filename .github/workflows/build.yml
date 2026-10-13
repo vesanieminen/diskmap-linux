@@ -1,0 +1,29 @@
+name: build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libfreetype-dev libfontconfig-dev
+      - name: Build
+        run: make && cp diskmap diskmap-linux
+      - name: Smoke test (headless)
+        run: SDL_VIDEODRIVER=dummy DISKMAP_ONESHOT=1 ./diskmap .
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: diskmap-linux
+          body: |
+            Prebuilt x86-64 Linux binary, dynamically linked against SDL2, FreeType and Fontconfig.
+
+            - Arch: `sudo pacman -S sdl2 freetype2 fontconfig`
+            - Debian/Ubuntu: `sudo apt install libsdl2-2.0-0 libfreetype6 libfontconfig1`
+
+            Or just `make` from source — it is one C file.
