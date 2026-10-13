@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create the release + upload the binary
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
